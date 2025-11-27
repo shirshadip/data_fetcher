@@ -1,40 +1,193 @@
-import tkinter as tk 
+import tkinter as tk
+from tkinter import ttk, messagebox
 import database
 
-root = tk.Tk()
-root.geometry("900x800")
-options = ["create a new database","work with existing database"]
+class ModernDBManager:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Data Fetcher")
+        self.root.geometry("900x700")
+        self.root.resizable()
+        
+        # Color scheme
+        self.bg_color = "#f5f5f5"
+        self.primary_color = "#2563eb"
+        self.secondary_color = "#1e40af"
+        self.card_color = "#ffffff"
+        self.text_color = "#1f2937"
+        self.border_color = "#e5e7eb"
+        
+        self.root.configure(bg=self.bg_color)
+        
+        self.setup_ui()
+    
+    def setup_ui(self):
+        # Main container
+        main_container = tk.Frame(self.root, bg=self.bg_color)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=40, pady=40)
+        
+        # Title
+        title = tk.Label(
+            main_container,
+            text="Data Fetcher",
+            font=("Segoe UI", 24, "bold"),
+            bg=self.bg_color,
+            fg=self.text_color
+        )
+        title.pack(pady=(0, 30))
+        
+        # Options card
+        options_card = tk.Frame(
+            main_container,
+            bg=self.card_color,
+            relief=tk.FLAT,
+            bd=0
+        )
+        options_card.pack(fill=tk.BOTH, expand=True)
+        
+        # Add shadow effect with border
+        options_card.config(highlightbackground=self.border_color, highlightthickness=1)
+        
+        # Card content
+        card_content = tk.Frame(options_card, bg=self.card_color)
+        card_content.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
+        
+        # Option label
+        option_label = tk.Label(
+            card_content,
+            text="Select an option",
+            font=("Segoe UI", 12),
+            bg=self.card_color,
+            fg=self.text_color
+        )
+        option_label.pack(anchor=tk.W, pady=(0, 10))
+        
+        # Custom styled dropdown
+        self.selected = tk.StringVar(value="Create a new database")
+        self.options = ["Create a new database", "Work with existing database"]
+        
+        dropdown_frame = tk.Frame(card_content, bg=self.card_color)
+        dropdown_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        # Style for OptionMenu
+        self.dropdown = tk.OptionMenu(
+            dropdown_frame,
+            self.selected,
+            *self.options,
+            command=self.on_option_change
+        )
+        self.dropdown.config(
+            font=("Segoe UI", 11),
+            bg=self.card_color,
+            fg=self.text_color,
+            activebackground=self.primary_color,
+            activeforeground="white",
+            relief=tk.SOLID,
+            bd=1,
+            highlightthickness=0,
+            width=30
+        )
+        self.dropdown.pack(fill=tk.X)
+        
+        # Database creation form (initially hidden)
+        self.form_frame = tk.Frame(card_content, bg=self.card_color)
+        
+        # Database name
+        db_label = tk.Label(
+            self.form_frame,
+            text="Database Name",
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color
+        )
+        db_label.pack(anchor=tk.W, pady=(10, 5))
+        
+        self.db_name = tk.Entry(
+            self.form_frame,
+            font=("Segoe UI", 11),
+            relief=tk.SOLID,
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.primary_color,
+            highlightbackground=self.border_color
+        )
+        self.db_name.pack(fill=tk.X, ipady=8)
+        
+        # Password
+        pas_label = tk.Label(
+            self.form_frame,
+            text="Password",
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color
+        )
+        pas_label.pack(anchor=tk.W, pady=(15, 5))
+        
+        self.pas = tk.Entry(
+            self.form_frame,
+            font=("Segoe UI", 11),
+            show="●",
+            relief=tk.SOLID,
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.primary_color,
+            highlightbackground=self.border_color
+        )
+        self.pas.pack(fill=tk.X, ipady=8)
+        
+        # Connect button
+        self.db_btn = tk.Button(
+            self.form_frame,
+            text="Connect Database",
+            font=("Segoe UI", 11, "bold"),
+            bg=self.primary_color,
+            fg="white",
+            activebackground=self.secondary_color,
+            activeforeground="white",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            command=self.create_database
+        )
+        self.db_btn.pack(fill=tk.X, pady=(20, 0), ipady=10)
+        
+        # Bind hover effects
+        self.db_btn.bind("<Enter>", lambda e: self.db_btn.config(bg=self.secondary_color))
+        self.db_btn.bind("<Leave>", lambda e: self.db_btn.config(bg=self.primary_color))
+        
+        # Show initial state
+        self.on_option_change(self.selected.get())
+    
+    def on_option_change(self, choice):
+        if self.selected.get() == "Create a new database":
+            self.form_frame.pack(fill=tk.BOTH, expand=True)
+        else:
+            self.form_frame.pack_forget()
+    
+    def create_database(self):
+        db = self.db_name.get().strip()
+        password = self.pas.get()
+        
+        # Validation
+        if not db:
+            messagebox.showerror("Error", "Please enter a database name")
+            return
+        
+        if not password:
+            messagebox.showerror("Error", "Please enter a password")
+            return
+        
+        try:
+            database.database(password, db)
+            messagebox.showinfo("Success", f"Connected to database: {db}")
+            # Clear fields after success
+            self.db_name.delete(0, tk.END)
+            self.pas.delete(0, tk.END)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to connect: {str(e)}")
 
-# StringVar to store selected value
-selected = tk.StringVar()
-selected.set(options[0])   # default value
-
-# Create dropdown
-dropdown = tk.OptionMenu(root, selected, *options)
-dropdown.config(height=5,width=40,bg="red",fg="grey")
-dropdown.pack(pady=20,padx=10)
-
-db_label = tk.Label(root, text="Enter the database name you want to connect")
-db_label.pack()
-
-db_name = tk.Entry(root)
-db_name.pack()
-
-pas_label = tk.Label(root, text="Enter your password of database")
-pas_label.pack()
-
-pas = tk.Entry(root, show="*")  # optional: hide password
-pas.pack()
-
-def create():
-    # Get text from entries
-    db = db_name.get()
-    password = pas.get()
-
-    # Pass actual values
-    database.database(password, db)
-
-db_btn = tk.Button(root, text="connect database", command=create)
-db_btn.pack()
-
-root.mainloop()
+# Main application
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ModernDBManager(root)
+    root.mainloop()
