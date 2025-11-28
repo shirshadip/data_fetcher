@@ -155,7 +155,7 @@ class DataFetcher:
         # Password
         pas_label = tk.Label(
             self.form_frame,
-            text="Password",
+            text="Enter your Password",
             font=("Segoe UI", 10),
             bg=self.card_color,
             fg=self.text_color
@@ -193,9 +193,13 @@ class DataFetcher:
         # Bind hover effects
         self.db_btn.bind("<Enter>", lambda e: self.db_btn.config(bg=self.secondary_color))
         self.db_btn.bind("<Leave>", lambda e: self.db_btn.config(bg=self.primary_color))
-        
+        """
+                the existing database connection code 
+                """
         # Connection frame (for "Work with existing database")
         self.con_frame = tk.Frame(card_content, bg=self.card_color)
+
+
         
         con_label = tk.Label(
             self.con_frame,
@@ -204,10 +208,62 @@ class DataFetcher:
             bg=self.card_color,
             fg=self.text_color
         )
-        con_label.pack(pady=20)
-        
+        con_label.pack(anchor=tk.W, pady=(15, 5))
+
+        con_dbname = tk.Entry(
+            self.con_frame,
+            font=("Segoe UI", 11),
+            relief=tk.SOLID,
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.primary_color,
+            highlightbackground=self.border_color
+        )
+        con_dbname.pack(fill=tk.X, ipady=8)
+        con_paslabel = tk.Label(
+            self.con_frame,
+            text="Enter your Password",
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color
+
+        )
+        con_paslabel.pack(anchor=tk.W,pady=20)
+        con_pas=tk.Entry(
+            self.con_frame,
+            font=("Segoe UI", 11),
+            relief=tk.SOLID,
+            bd=1,
+            show="●",
+            highlightthickness=1,
+            highlightcolor=self.primary_color,
+            highlightbackground=self.border_color
+        )
+
+        con_pas.pack(fill=tk.X, ipady=8)
+
+        # Connect button
+        self.con_btn = tk.Button(
+            self.con_frame,
+            text="connect to database",
+            font=("Segoe UI", 11, "bold"),
+            bg=self.primary_color,
+            fg="white",
+            activebackground=self.secondary_color,
+            activeforeground="white",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            command=self.create_database
+        )
+        self.con_btn.pack(fill=tk.X, pady=(20, 0), ipady=10)
+
+        # Bind hover effects
+        self.con_frame.bind("<Enter>", lambda e: self.db_btn.config(bg=self.secondary_color))
+        self.con_frame.bind("<Leave>", lambda e: self.db_btn.config(bg=self.primary_color))
         # Show initial state
         self.on_option_change(self.selected.get())
+
     
     def on_option_change(self, choice):
         # Hide both frames
@@ -219,7 +275,49 @@ class DataFetcher:
             self.form_frame.pack(fill=tk.X)
         else:
             self.con_frame.pack(fill=tk.X)
-    
+            tk.Label(
+                self.con_frame,
+                text="do you want to create a new tabel?",
+                font=("Segoe UI", 13),
+                bg=self.card_color,
+            ).pack(anchor=tk.W, pady=(10, 5))
+
+
+
+            # Variable to store selected option
+            selected = tk.StringVar()
+            selected.set("yes")  # default value
+
+            # Radio Buttons
+            rb1 = tk.Radiobutton(self.con_frame, text="yes", variable=selected, value="Option 1")
+            rb1.pack()
+
+            rb2 = tk.Radiobutton(self.con_frame, text="no", variable=selected, value="Option 2")
+            rb2.pack()
+            if rb1:
+                tc_label=tk.Label(
+                    self.con_frame,
+                    text="enter your table name",
+                    font=("Segoe UI", 11),
+                    bg=self.card_color,
+                    fg=self.text_color
+
+                )
+                tc_label.pack(anchor=tk.W, pady=(10, 5))
+                t_create=tk.Entry(self.con_frame, font=("Segoe UI", 11))
+                t_create.pack(fill=tk.X, ipady=8)
+            elif rb2:
+                tc_label=tk.Label(
+                    self.con_frame,
+                    text="enter your table name",
+                    font=("Segoe UI", 11),
+                    bg=self.card_color,
+                    fg=self.text_color
+                )
+                tc_label.pack(anchor=tk.W, pady=(10, 5))
+                t_create=tk.Entry(self.con_frame, font=("Segoe UI", 11))
+                t_create.pack(fill=tk.X, ipady=8)
+
     def create_database(self):
         db = self.db_name.get().strip()
         password = self.pas.get()
@@ -249,3 +347,4 @@ if __name__ == "__main__":
     root.iconphoto(False, icon)
     app = DataFetcher(root)
     root.mainloop()
+
