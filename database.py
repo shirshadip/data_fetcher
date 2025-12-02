@@ -1,12 +1,13 @@
 import mysql.connector as m 
-def database (p,d):
+def database (p,t):
     con=m.connect(
         host="localhost",
         username="root",
         passwd=p
+        database="data_fetcher"
     )
     cur=con.cursor()
-    sql= f"CREATE DATABASE IF NOT EXISTS {d}"
+    sql=f""
     cur.execute(sql)
     con.commit()
     con.close()
